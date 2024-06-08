@@ -140,9 +140,8 @@ def testOneEpoch(options, model, dataset, device):
                 corner_heatmaps = corner_pred[batchIndex].detach().cpu().numpy()
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
-                vector_output_prefix = os.path.join(options.test_dir, 'vector_' + str(sampleIndex) + '_' + str(batchIndex))
                 print("Reconstructing floorplan for batch {}, image {}".format(sampleIndex, batchIndex))
-                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=vector_output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
+                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=options.test_dir + '/' + str(batchIndex) + '_', densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 continue
             if options.visualizeMode == 'debug':
                 exit(1)
