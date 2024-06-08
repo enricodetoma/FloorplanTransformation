@@ -97,7 +97,11 @@ class FloorPlan():
     # return
 
   def read(self):
-    floorplanFile = open(self.filename + '.txt', 'r')
+    if not self.filename.endswith('.txt'):
+        floorplanFile = open(self.filename + '.txt', 'r')
+    else:
+        floorplanFile = open(self.filename, 'r')
+        
     self.walls = []
     self.doors = []
     self.icons = []
