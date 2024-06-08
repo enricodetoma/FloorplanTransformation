@@ -714,6 +714,77 @@ class FloorPlan():
               poly.addVertex(vp.addVertex(v))
       return
 
+  def generateDoors(self, data):
+    doorsGroup = EggGroup('doors')
+    data.addChild(doorsGroup)
+    
+    vp = EggVertexPool('door_vertex')
+    doorsGroup.addChild(vp)
+
+    for doorIndex, door in enumerate(self.doors):
+        doorGroup = EggGroup('door_' + str(doorIndex))
+        doorsGroup.addChild(doorGroup)
+        
+        lineDim = calcLineDim((door[:2], door[2:4]))
+        
+        if lineDim == 0:
+            deltas = (0, self.doorWidth)
+        else:
+            deltas = (self.doorWidth, 0)
+
+        poly = EggPolygon()
+        doorGroup.addChild(poly)
+        poly.setTexture(self.doorMat.getEggTexture())
+        poly.setMaterial(self.doorMat.getEggMaterial())
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[0] - deltas[0]), door[1] - deltas[1], 0))
+        v.setUv(Point2D(0, 0))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[2] - deltas[0]), door[3] - deltas[1], 0))
+        v.setUv(Point2D(1, 0))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[2] - deltas[0]), door[3] - deltas[1], self.doorHeight))
+        v.setUv(Point2D(1, 1))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[0] - deltas[0]), door[1] - deltas[1], self.doorHeight))
+        v.setUv(Point2D(0, 1))
+        poly.addVertex(vp.addVertex(v))
+
+
+        poly = EggPolygon()
+        doorGroup.addChild(poly)
+        poly.setTexture(self.doorMat.getEggTexture())
+        poly.setMaterial(self.doorMat.getEggMaterial())
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[0] + deltas[0]), door[1] + deltas[1], 0))
+        v.setUv(Point2D(0, 0))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[2] + deltas[0]), door[3] + deltas[1], 0))
+        v.setUv(Point2D(1, 0))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[2] + deltas[0]), door[3] + deltas[1], self.doorHeight))
+        v.setUv(Point2D(1, 1))
+        poly.addVertex(vp.addVertex(v))
+
+        v = EggVertex()
+        v.setPos(Point3D(1 - (door[0] + deltas[0]), door[1] + deltas[1], self.doorHeight))
+        v.setUv(Point2D(0, 1))
+        poly.addVertex(vp.addVertex(v))
+        
+    return
+
   def generateEggModel(self):
       data = EggData()
       model = EggGroup('model')
