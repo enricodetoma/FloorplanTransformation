@@ -1,10 +1,10 @@
 import sys
 import os
 
-# Add the parent directory of the current script path to the Python path
+# Add the 'pytorch' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
-models_path = os.path.join(current_path, 'models')
-sys.path.append(models_path)
+parent_path = os.path.dirname(current_path)
+sys.path.append(parent_path)
 
 from model import Model
 
