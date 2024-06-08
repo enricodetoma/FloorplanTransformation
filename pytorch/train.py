@@ -68,7 +68,7 @@ def convert_to_svg(data):
         svg.append(svg_line)
 
     # Convert the ElementTree to a string
-    return ET.tostring(svg, encoding='utf-8')
+    return ET.tostring(svg, encoding='unicode').decode('utf-8')
 
 # Function to convert custom format to OBJ
 def convert_to_obj(floorplan_txt_path, obj_path):
