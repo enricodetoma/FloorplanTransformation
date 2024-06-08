@@ -1,56 +1,31 @@
-import sys
-sys.path.append('/home/apps/forkedFloorplanTransformation/pytorch/p3env/lib/python3.6/site-packages')
-
 from panda3d.egg import *
 from panda3d.core import *
-from panda3d.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBase import ShowBase
 from rendering.obj2egg import ObjMaterial
 from copy import deepcopy
 import numpy as np
 import cv2
 import copy
 
-
-
-
-def calcDistance(point_1, point_2):
-  return pow(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2), 0.5)
-
-def calcLineDim(line, lineWidth = -1):
-  if abs(line[0][0] - line[1][0]) > abs(line[0][1] - line[1][1]):
-    if lineWidth < 0 or abs(line[0][1] - line[1][1]) <= lineWidth:
-      return 0
-    pass
-  elif abs(line[0][0] - line[1][0]) < abs(line[0][1] - line[1][1]):
-    if lineWidth < 0 or abs(line[0][0] - line[1][0]) <= lineWidth:
-      return 1
-  else:
-    return -1
-  
-from panda3d.egg import *
-from panda3d.core import *
-from rendering.obj2egg import ObjMaterial
-import numpy as np
-import cv2
-import copy
-
+# Initialize the base ShowBase instance
+base = ShowBase()
 
 def calcDistance(point_1, point_2):
     return pow(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2), 0.5)
 
-def calcLineDim(line, lineWidth = -1):
+def calcLineDim(line, lineWidth=-1):
     if abs(line[0][0] - line[1][0]) > abs(line[0][1] - line[1][1]):
         if lineWidth < 0 or abs(line[0][1] - line[1][1]) <= lineWidth:
             return 0
+        pass
     elif abs(line[0][0] - line[1][0]) < abs(line[0][1] - line[1][1]):
         if lineWidth < 0 or abs(line[0][0] - line[1][0]) <= lineWidth:
             return 1
     else:
         return -1
 
-class FloorPlan(ShowBase):
+class FloorPlan():
   def __init__(self, filename):
-      ShowBase.__init__(self)  # Initialize ShowBase
       self.wallWidth = 0.005
       self.wallHeight = 0.3
       self.doorWidth = self.wallWidth
@@ -106,10 +81,13 @@ class FloorPlan(ShowBase):
       self.windowMat.put('map_Kd', 'data/window.jpg')
 
       self.iconNodes = {}
-      self.iconNodes['cooking_counter'] = self.loader.loadModel('data/cooking_counter.egg')
-      self.iconNodes['bathtub'] = self.loader.loadModel('data/bathtub.egg')
-      self.iconNodes['toilet'] = self.loader.loadModel('data/toilet.egg')
-      self.iconNodes['washing_basin'] = self.loader.loadModel('data/washing_basin.egg')
+      self.iconNodes['cooking_counter'] = base.loader.loadModel('data/cooking_counter.egg')
+      self.iconNodes['bathtub'] = base.loader.loadModel('data/bathtub.egg')
+      self.iconNodes['toilet'] = base.loader.loadModel('data/toilet.egg')
+      self.iconNodes['washing_basin'] = base.loader.loadModel('data/washing_basin.egg')
+      return
+
+
     # return
 
   def read(self):

@@ -27,6 +27,13 @@ from options import parse_args
 from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
 
+from panda3d.core import *
+from panda3d.core import *
+from direct.showbase.ShowBase import ShowBase
+
+# Initialize the base ShowBase instance
+base = ShowBase()
+
 # Import FloorPlan from floorplan.py
 from rendering.floorplan import FloorPlan
 
