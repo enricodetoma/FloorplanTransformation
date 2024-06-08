@@ -5,6 +5,8 @@ from copy import deepcopy
 import numpy as np
 import cv2
 import copy
+from panda3d.showbase.ShowBase import ShowBase
+
 
 
 def calcDistance(point_1, point_2):
@@ -42,8 +44,9 @@ def calcLineDim(line, lineWidth = -1):
     else:
         return -1
 
-class FloorPlan:
+class FloorPlan(ShowBase):
   def __init__(self, filename):
+      ShowBase.__init__(self)  # Initialize ShowBase
       self.wallWidth = 0.005
       self.wallHeight = 0.3
       self.doorWidth = self.wallWidth
@@ -99,10 +102,10 @@ class FloorPlan:
       self.windowMat.put('map_Kd', 'data/window.jpg')
 
       self.iconNodes = {}
-      self.iconNodes['cooking_counter'] = base.loader.loadModel('data/cooking_counter.egg')
-      self.iconNodes['bathtub'] = base.loader.loadModel('data/bathtub.egg')
-      self.iconNodes['toilet'] = base.loader.loadModel('data/toilet.egg')
-      self.iconNodes['washing_basin'] = base.loader.loadModel('data/washing_basin.egg')
+      self.iconNodes['cooking_counter'] = self.loader.loadModel('data/cooking_counter.egg')
+      self.iconNodes['bathtub'] = self.loader.loadModel('data/bathtub.egg')
+      self.iconNodes['toilet'] = self.loader.loadModel('data/toilet.egg')
+      self.iconNodes['washing_basin'] = self.loader.loadModel('data/washing_basin.egg')
     # return
 
   def read(self):
