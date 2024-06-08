@@ -1,4 +1,6 @@
 
+from panda3d.egg import EggData, EggGroup, EggVertex, EggVertexPool, EggPolygon, Filename
+from panda3d.core import Point3D, Point2D, Vec4
 from rendering.obj2egg import ObjMaterial
 from copy import deepcopy
 import numpy as np
