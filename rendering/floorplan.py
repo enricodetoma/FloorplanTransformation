@@ -5,15 +5,11 @@ import numpy as np
 import cv2
 import copy
 
-
-# from direct.showbase.ShowBase import ShowBase
 from panda3d.core import loadPrcFileData
 
 # Configure Panda3D to use an offscreen buffer
 loadPrcFileData('', 'window-type offscreen')
 
-# Initialize the base ShowBase instance
-# base = ShowBase()
 
 def calcDistance(point_1, point_2):
     return pow(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2), 0.5)
@@ -86,10 +82,10 @@ class FloorPlan():
       self.windowMat.put('map_Kd', 'data/window.jpg')
 
       self.iconNodes = {}
-      self.iconNodes['cooking_counter'] = base.loader.loadModel('data/cooking_counter.egg')
-      self.iconNodes['bathtub'] = base.loader.loadModel('data/bathtub.egg')
-      self.iconNodes['toilet'] = base.loader.loadModel('data/toilet.egg')
-      self.iconNodes['washing_basin'] = base.loader.loadModel('data/washing_basin.egg')
+      self.iconNodes['cooking_counter'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/cooking_counter.egg')
+      self.iconNodes['bathtub'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/bathtub.egg')
+      self.iconNodes['toilet'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/toilet.egg')
+      self.iconNodes['washing_basin'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/washing_basin.egg')
       return
 
 
