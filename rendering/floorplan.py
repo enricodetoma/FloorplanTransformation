@@ -789,7 +789,7 @@ class FloorPlan():
   def convert_egg_to_obj(egg_file, obj_file):
       import subprocess
       # Path to the Blender executable
-      blender_path = '/path/to/your/blender/executable'
+      blender_path = '/usr/local/bin/blender'
       
       # Blender script to import .egg and export .obj
       script = f"""
@@ -822,7 +822,7 @@ class FloorPlan():
       data.writeEgg(Filename(egg_output_path))
       
       # Convert .egg to .obj
-      convert_egg_to_obj(egg_output_path, output_prefix + "floorplan.obj")
+      self.convert_egg_to_obj(egg_output_path, output_prefix + "floorplan.obj")
       
       scene = NodePath(loadEggData(data))
       self.generateIcons(scene)
