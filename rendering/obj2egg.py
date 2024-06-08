@@ -17,6 +17,7 @@
     licensed under WTFPL (http://sam.zoy.org/wtfpl/)
 """
 
+from panda3d.egg import *
 from panda3d.core import *
 import math
 import string
