@@ -88,6 +88,9 @@ class FloorPlan():
       self.iconNodes['bathtub'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/bathtub.egg')
       self.iconNodes['toilet'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/toilet.egg')
       self.iconNodes['washing_basin'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/washing_basin.egg')
+      
+      self.read()  # Initialize walls, doors, icons, etc.
+
       return
 
 
@@ -445,7 +448,6 @@ class FloorPlan():
       self.generateDoors(model)
       self.generateWindows(model)
       return data
-
 
   def segmentRooms(self):
       wallMask = np.ones((self.height, self.width), np.uint8) * 255
