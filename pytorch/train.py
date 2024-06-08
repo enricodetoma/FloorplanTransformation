@@ -163,7 +163,7 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
         cv2.imwrite(filename, image)
         for name, result_dict in dicts:
             for info in ['corner', 'icon', 'room']:
-                result_filename = filename.replace('image', f'{info}_{name}')
+                result_filename = filename.replace('image', '{}_{}'.format(info, name))
                 print("Saving {} image for {} to {}".format(info, name, result_filename))
                 cv2.imwrite(result_filename, drawSegmentationImage(result_dict[info][batchIndex], blackIndex=0, blackThreshold=0.5))
                 continue
