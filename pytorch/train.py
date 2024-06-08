@@ -215,10 +215,10 @@ def testOneEpoch(options, model, dataset, device):
                     with open(svg_output_path, 'w') as f:
                         f.write(svg_data)
                     print(f"Saved SVG to {svg_output_path}")
-                    
+
                 # Generate and save 3D model using FloorPlan class
                 floorplan = FloorPlan(floorplan_txt_path)
-                scene = floorplan.generateEggModel()
+                scene = floorplan.generateEggModel2()
                 obj_output_path = output_prefix + 'floorplan.egg'
                 scene.writeBamFile(obj_output_path)
                 print(f"Saved 3D model to {obj_output_path}")
