@@ -30,6 +30,9 @@ def main(options):
         os.system("mkdir -p %s"%options.test_dir)
         pass
 
+    print(f"Checkpoint directory: {options.checkpoint_dir}")
+    print(f"Test directory: {options.test_dir}")
+
     dataset = FloorplanDataset(options, split='train', random=True)
 
     print('the number of images', len(dataset))    
@@ -131,11 +134,13 @@ def testOneEpoch(options, model, dataset, device):
         data_iterator.set_description(status)
 
         if sampleIndex % 500 == 0:
+            print(f"Saving batch {sampleIndex} to {options.test_dir}")
             visualizeBatch(options, images.detach().cpu().numpy(), [('gt', {'corner': corner_gt.detach().cpu().numpy(), 'icon': icon_gt.detach().cpu().numpy(), 'room': room_gt.detach().cpu().numpy()}), ('pred', {'corner': corner_pred.max(-1)[1].detach().cpu().numpy(), 'icon': icon_pred.max(-1)[1].detach().cpu().numpy(), 'room': room_pred.max(-1)[1].detach().cpu().numpy()})])
             for batchIndex in range(len(images)):
                 corner_heatmaps = corner_pred[batchIndex].detach().cpu().numpy()
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
-                room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()   
+                room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
+                print(f"Reconstructing floorplan for batch {sampleIndex}, image {batchIndex}")
                 reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=options.test_dir + '/' + str(batchIndex) + '_', densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 continue
             if options.visualizeMode == 'debug':
@@ -154,10 +159,13 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
     for batchIndex in range(len(images)):
         image = images[batchIndex].copy()
         filename = options.test_dir + '/' + str(indexOffset + batchIndex) + '_image.png'
+        print(f"Saving image to {filename}")
         cv2.imwrite(filename, image)
         for name, result_dict in dicts:
             for info in ['corner', 'icon', 'room']:
-                cv2.imwrite(filename.replace('image', info + '_' + name), drawSegmentationImage(result_dict[info][batchIndex], blackIndex=0, blackThreshold=0.5))
+                result_filename = filename.replace('image', f'{info}_{name}')
+                print(f"Saving {info} image for {name} to {result_filename}")
+                cv2.imwrite(result_filename, drawSegmentationImage(result_dict[info][batchIndex], blackIndex=0, blackThreshold=0.5))
                 continue
             continue
         continue
