@@ -1,5 +1,6 @@
 import sys
 import os
+import xml.etree.ElementTree as ET  # For SVG conversion
 
 # Add the project root directory and 'pytorch' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +22,49 @@ from options import parse_args
 
 from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
+
+# Function to create an SVG element
+def create_svg_element(tag, attrib):
+    element = ET.Element(tag, attrib)
+    return element
+
+# Function to convert custom format to SVG
+def convert_to_svg(data):
+    # Create the root SVG element
+    svg = create_svg_element('svg', {
+        'xmlns': "http://www.w3.org/2000/svg",
+        'version': "1.1",
+        'width': "256",
+        'height': "256"
+    })
+
+    # Parse the data
+    lines = data.strip().split('\n')
+    width, height = map(int, lines[0].split())
+    num_lines = int(lines[1])
+    
+    for line in lines[2:2 + num_lines]:
+        x1, y1, x2, y2, _1, _2 = map(float, line.split())
+        svg_line = create_svg_element('line', {
+            'x1': str(x1), 'y1': str(y1),
+            'x2': str(x2), 'y2': str(y2),
+            'stroke': "black", 'stroke-width': "1"
+        })
+        svg.append(svg_line)
+    
+    for line in lines[2 + num_lines:]:
+        x1, y1, x2, y2, door_type, _1, _2 = line.split()
+        x1, y1, x2, y2 = map(float, [x1, y1, x2, y2])
+        color = "red" if door_type == "door" else "blue"
+        svg_line = create_svg_element('line', {
+            'x1': str(x1), 'y1': str(y1),
+            'x2': str(x2), 'y2': str(y2),
+            'stroke': color, 'stroke-width': "2"
+        })
+        svg.append(svg_line)
+
+    # Convert the ElementTree to a string
+    return ET.tostring(svg, encoding='unicode')
 
 def main(options):
     if not os.path.exists(options.checkpoint_dir):
@@ -141,7 +185,20 @@ def testOneEpoch(options, model, dataset, device):
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 print("Reconstructing floorplan for batch {}, image {}".format(sampleIndex, batchIndex))
-                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=options.test_dir + '/' + str(batchIndex) + '_', densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
+                output_prefix = options.test_dir + '/' + str(batchIndex) + '_'
+                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
+                
+                # Convert floorplan to SVG
+                floorplan_txt_path = output_prefix + 'floorplan.txt'
+                if os.path.exists(floorplan_txt_path):
+                    with open(floorplan_txt_path, 'r') as f:
+                        floorplan_data = f.read()
+                    svg_data = convert_to_svg(floorplan_data)
+                    svg_output_path = output_prefix + 'floorplan.svg'
+                    with open(svg_output_path, 'w') as f:
+                        f.write(svg_data)
+                    print(f"Saved SVG to {svg_output_path}")
+
                 continue
             if options.visualizeMode == 'debug':
                 exit(1)
