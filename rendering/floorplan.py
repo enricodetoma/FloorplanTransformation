@@ -430,6 +430,290 @@ class FloorPlan():
       return
 
 
+  def generateWalls(self, data):
+      wallsGroup = EggGroup('walls')
+      data.addChild(wallsGroup)
+
+      vp = EggVertexPool('wall_vertex')
+      data.addChild(vp)
+
+      for wallIndex, wall in enumerate(self.walls):
+          wallGroup = EggGroup('wall')
+          wallsGroup.addChild(wallGroup)
+          lineDim = calcLineDim((wall[:2], wall[2:4]))
+
+          if lineDim == 0:
+              deltas = (0, self.wallWidth)
+          else:
+              deltas = (self.wallWidth, 0)
+
+          poly = EggPolygon()
+          wallGroup.addChild(poly)
+
+          if lineDim == 0:
+              poly.setTexture(self.wallMats[wall[4]].getEggTexture())
+              poly.setMaterial(self.wallMats[wall[4]].getEggMaterial())
+          else:
+              poly.setTexture(self.wallMats[wall[5]].getEggTexture())
+              poly.setMaterial(self.wallMats[wall[5]].getEggMaterial())
+
+          values = [wall[lineDim] - self.wallWidth + 0.0001, wall[2 + lineDim] + self.wallWidth - 0.0001]
+          for door in self.doors:
+              if calcLineDim((door[:2], door[2:4])) != lineDim:
+                  continue
+              if door[lineDim] >= wall[lineDim] and door[2 + lineDim] <= wall[2 + lineDim] and abs(door[1 - lineDim] - wall[1 - lineDim]) <= self.wallWidth:
+                  values.append(door[lineDim])
+                  values.append(door[2 + lineDim])
+          values.sort()
+
+          fixedValue = (wall[1 - lineDim] + wall[3 - lineDim]) / 2
+          for valueIndex, value in enumerate(values):
+              if valueIndex % 2 == 0 and valueIndex > 0:
+                  v = EggVertex()
+                  if lineDim == 0:
+                      v.setPos(Point3D(1 - (value - deltas[0]), fixedValue - deltas[1], self.doorHeight))
+                  else:
+                      v.setPos(Point3D(1 - (fixedValue - deltas[0]), value - deltas[1], self.doorHeight))
+                  v.setUv(Point2D(self.doorHeight / self.wallHeight, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+                  poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              if lineDim == 0:
+                  v.setPos(Point3D(1 - (value - deltas[0]), fixedValue - deltas[1], 0))
+              else:
+                  v.setPos(Point3D(1 - (fixedValue - deltas[0]), value - deltas[1], 0))
+              v.setUv(Point2D(0, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+              poly.addVertex(vp.addVertex(v))
+
+              if valueIndex % 2 == 1 and valueIndex + 1 < len(values):
+                  v = EggVertex()
+                  if lineDim == 0:
+                      v.setPos(Point3D(1 - (value - deltas[0]), fixedValue - deltas[1], self.doorHeight))
+                  else:
+                      v.setPos(Point3D(1 - (fixedValue - deltas[0]), value - deltas[1], self.doorHeight))
+                  v.setUv(Point2D(self.doorHeight / self.wallHeight, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+                  poly.addVertex(vp.addVertex(v))
+
+          v = EggVertex()
+          if lineDim == 0:
+              v.setPos(Point3D(1 - (values[len(values) - 1] - deltas[0]), fixedValue - deltas[1], self.wallHeight))
+          else:
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[len(values) - 1] - deltas[1], self.wallHeight))
+          v.setUv(Point2D(1, 1))
+          poly.addVertex(vp.addVertex(v))
+
+          v = EggVertex()
+          if lineDim == 0:
+              v.setPos(Point3D(1 - (values[0] - deltas[0]), fixedValue - deltas[1], self.wallHeight))
+          else:
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[0] - deltas[1], self.wallHeight))
+          v.setUv(Point2D(1, 0))
+          poly.addVertex(vp.addVertex(v))
+
+          poly = EggPolygon()
+          wallGroup.addChild(poly)
+          if lineDim == 0:
+              poly.setTexture(self.wallMats[wall[5]].getEggTexture())
+              poly.setMaterial(self.wallMats[wall[5]].getEggMaterial())
+          else:
+              poly.setTexture(self.wallMats[wall[4]].getEggTexture())
+              poly.setMaterial(self.wallMats[wall[4]].getEggMaterial())
+
+          for valueIndex, value in enumerate(values):
+              if valueIndex % 2 == 0 and valueIndex > 0:
+                  v = EggVertex()
+                  if lineDim == 0:
+                      v.setPos(Point3D(1 - (value + deltas[0]), fixedValue + deltas[1], self.doorHeight))
+                  else:
+                      v.setPos(Point3D(1 - (fixedValue + deltas[0]), value + deltas[1], self.doorHeight))
+                  v.setUv(Point2D(self.doorHeight / self.wallHeight, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+                  poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              if lineDim == 0:
+                  v.setPos(Point3D(1 - (value + deltas[0]), fixedValue + deltas[1], 0))
+              else:
+                  v.setPos(Point3D(1 - (fixedValue + deltas[0]), value + deltas[1], 0))
+              v.setUv(Point2D(0, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+              poly.addVertex(vp.addVertex(v))
+
+              if valueIndex % 2 == 1 and valueIndex + 1 < len(values):
+                  v = EggVertex()
+                  if lineDim == 0:
+                      v.setPos(Point3D(1 - (value + deltas[0]), fixedValue + deltas[1], self.doorHeight))
+                  else:
+                      v.setPos(Point3D(1 - (fixedValue + deltas[0]), value + deltas[1], self.doorHeight))
+                  v.setUv(Point2D(self.doorHeight / self.wallHeight, (value - wall[lineDim]) / (wall[2 + lineDim] - wall[lineDim])))
+                  poly.addVertex(vp.addVertex(v))
+
+          v = EggVertex()
+          if lineDim == 0:
+              v.setPos(Point3D(1 - (values[len(values) - 1] + deltas[0]), fixedValue + deltas[1], self.wallHeight))
+          else:
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[len(values) - 1] + deltas[1], self.wallHeight))
+          v.setUv(Point2D(1, 1))
+          poly.addVertex(vp.addVertex(v))
+
+          v = EggVertex()
+          if lineDim == 0:
+              v.setPos(Point3D(1 - (values[0] + deltas[0]), fixedValue + deltas[1], self.wallHeight))
+          else:
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[0] + deltas[1], self.wallHeight))
+          v.setUv(Point2D(1, 0))
+          poly.addVertex(vp.addVertex(v))
+
+          if lineDim == 0:
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue - deltas[1], 0))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue - deltas[1], self.wallHeight))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue + deltas[1], self.wallHeight))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue + deltas[1], 0))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue - deltas[1], self.wallHeight))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue - deltas[1], self.wallHeight))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue + deltas[1], self.wallHeight))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[0], fixedValue + deltas[1], self.wallHeight))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue - deltas[1], self.wallHeight))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue - deltas[1], 0))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue + deltas[1], 0))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - values[len(values) - 1], fixedValue + deltas[1], self.wallHeight))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+          else:
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[0], 0))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[0], self.wallHeight))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[0], self.wallHeight))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[0], 0))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[0], self.wallHeight))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[len(values) - 1], self.wallHeight))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[len(values) - 1], self.wallHeight))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[0], self.wallHeight))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              poly = EggPolygon()
+              wallGroup.addChild(poly)
+              poly.setTexture(self.wallMats[10].getEggTexture())
+              poly.setMaterial(self.wallMats[10].getEggMaterial())
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[len(values) - 1], self.wallHeight))
+              v.setUv(Point2D(0, 0))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue - deltas[0]), values[len(values) - 1], 0))
+              v.setUv(Point2D(0, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[len(values) - 1], 0))
+              v.setUv(Point2D(1, 1))
+              poly.addVertex(vp.addVertex(v))
+
+              v = EggVertex()
+              v.setPos(Point3D(1 - (fixedValue + deltas[0]), values[len(values) - 1], self.wallHeight))
+              v.setUv(Point2D(1, 0))
+              poly.addVertex(vp.addVertex(v))
+      return
+
   def generateEggModel(self):
       data = EggData()
       model = EggGroup('model')
