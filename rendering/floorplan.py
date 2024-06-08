@@ -6,14 +6,14 @@ import cv2
 import copy
 
 
-from direct.showbase.ShowBase import ShowBase
+# from direct.showbase.ShowBase import ShowBase
 from panda3d.core import loadPrcFileData
 
 # Configure Panda3D to use an offscreen buffer
 loadPrcFileData('', 'window-type offscreen')
 
 # Initialize the base ShowBase instance
-base = ShowBase()
+# base = ShowBase()
 
 def calcDistance(point_1, point_2):
     return pow(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2), 0.5)
