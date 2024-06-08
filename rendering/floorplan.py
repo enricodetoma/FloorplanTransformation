@@ -1,10 +1,11 @@
 from panda3d.egg import *
 from panda3d.core import *
-from obj2egg import ObjMaterial
+from rendering.obj2egg import ObjMaterial
 from copy import deepcopy
 import numpy as np
 import cv2
 import copy
+
 
 def calcDistance(point_1, point_2):
   return pow(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2), 0.5)
