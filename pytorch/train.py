@@ -8,6 +8,10 @@ root_path = os.path.dirname(current_path)
 sys.path.append(root_path)
 sys.path.append(current_path)
 
+rendering_path = os.path.join(current_path, 'rendering')
+sys.path.append(rendering_path)
+
+
 from models.model import Model
 
 import torch
