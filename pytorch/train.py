@@ -1,9 +1,15 @@
+import sys
+import os
+
+# Add the current script path to the Python path
+current_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_path)
+
 import torch
 from torch.utils.data import DataLoader
 
 from tqdm import tqdm
 import numpy as np
-import os
 import cv2
 
 from utils import *
