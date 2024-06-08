@@ -27,6 +27,30 @@ def calcLineDim(line, lineWidth=-1):
     else:
         return -1
 
+
+def convert_egg_to_obj(egg_file, obj_file):
+    import subprocess
+    # Path to the Blender executable
+    blender_path = '/usr/local/bin/blender'
+    
+    # Blender script to import .egg and export .obj
+    script = f"""
+import bpy
+bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.ops.import_scene.egg(filepath="{egg_file}")
+bpy.ops.export_scene.obj(filepath="{obj_file}")
+bpy.ops.wm.quit_blender()
+"""
+    script_file = 'convert_egg_to_obj.py'
+    with open(script_file, 'w') as file:
+        file.write(script)
+
+    try:
+        subprocess.run([blender_path, '--background', '--python', script_file], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error converting EGG to OBJ: {e}")
+
+
 class FloorPlan():
   def __init__(self, filename):
       self.wallWidth = 0.005
@@ -786,29 +810,6 @@ class FloorPlan():
     return
 
 
-  def convert_egg_to_obj(egg_file, obj_file):
-      import subprocess
-      # Path to the Blender executable
-      blender_path = '/usr/local/bin/blender'
-      
-      # Blender script to import .egg and export .obj
-      script = f"""
-  import bpy
-  bpy.ops.wm.read_factory_settings(use_empty=True)
-  bpy.ops.import_scene.egg(filepath="{egg_file}")
-  bpy.ops.export_scene.obj(filepath="{obj_file}")
-  bpy.ops.wm.quit_blender()
-  """
-      script_file = 'convert_egg_to_obj.py'
-      with open(script_file, 'w') as file:
-          file.write(script)
-
-      try:
-          subprocess.run([blender_path, '--background', '--python', script_file], check=True)
-      except subprocess.CalledProcessError as e:
-          print(f"Error converting EGG to OBJ: {e}")
-
-
   def generateEggModel(self, output_prefix=None):
       data = EggData()
       model = EggGroup('model')
@@ -822,7 +823,7 @@ class FloorPlan():
       data.writeEgg(Filename(egg_output_path))
       
       # Convert .egg to .obj
-      self.convert_egg_to_obj(egg_output_path, output_prefix + "floorplan.obj")
+      convert_egg_to_obj(egg_output_path, output_prefix + "floorplan.obj")
       
       scene = NodePath(loadEggData(data))
       self.generateIcons(scene)
