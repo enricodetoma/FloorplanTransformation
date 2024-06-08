@@ -1,13 +1,12 @@
 import sys
 import os
 
-# Add the 'pytorch' directory to the Python path
+# Add the 'pytorch' directory and 'models' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
-parent_path = os.path.dirname(current_path)
-sys.path.append(parent_path)
+sys.path.append(current_path)
+sys.path.append(os.path.join(current_path, 'models'))
 
-from model import Model
-
+from models.model import Model
 
 import torch
 from torch.utils.data import DataLoader
