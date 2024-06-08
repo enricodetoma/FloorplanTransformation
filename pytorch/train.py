@@ -27,9 +27,11 @@ from options import parse_args
 from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
 
-from panda3d.core import *
-from panda3d.core import *
 from direct.showbase.ShowBase import ShowBase
+from panda3d.core import loadPrcFileData
+
+# Configure Panda3D to use an offscreen buffer
+loadPrcFileData('', 'window-type offscreen')
 
 # Initialize the base ShowBase instance
 base = ShowBase()
