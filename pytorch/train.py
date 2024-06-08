@@ -95,9 +95,9 @@ def convert_to_obj(floorplan_txt_path, obj_path):
     with open(obj_path, 'w') as f:
         f.write("# OBJ file\n")
         for i, (x, y) in enumerate(vertices):
-            f.write(f"v {x} {y} 0.0\n")
+            f.write("v {} {} 0.0\n".format(x, y))
         for i, (x1, y1, x2, y2) in enumerate(edges):
-            f.write(f"l {i * 2 + 1} {i * 2 + 2}\n")
+            f.write("l {} {}\n".format(i * 2 + 1, i * 2 + 2))
 
 def main(options):
     if not os.path.exists(options.checkpoint_dir):
