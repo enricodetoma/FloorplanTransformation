@@ -1,11 +1,15 @@
+import sys
+sys.path.append('/home/apps/forkedFloorplanTransformation/pytorch/p3env/lib/python3.6/site-packages')
+
 from panda3d.egg import *
 from panda3d.core import *
+from panda3d.showbase.ShowBase import ShowBase
 from rendering.obj2egg import ObjMaterial
 from copy import deepcopy
 import numpy as np
 import cv2
 import copy
-from panda3d.showbase.ShowBase import ShowBase
+
 
 
 
