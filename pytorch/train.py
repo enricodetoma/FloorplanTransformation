@@ -173,7 +173,7 @@ if __name__ == '__main__':
         args.keyname += '_' + suffix
         pass
     
-    args.checkpoint_dir = './checkpoint/' + args.keyname
+    args.checkpoint_dir = '../checkpoint/' + args.keyname
     args.test_dir = 'test/' + args.keyname
 
     print('keyname=%s task=%s started'%(args.keyname, args.task))
