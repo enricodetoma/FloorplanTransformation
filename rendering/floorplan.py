@@ -101,53 +101,53 @@ class FloorPlan():
         floorplanFile = open(self.filename + '.txt', 'r')
     else:
         floorplanFile = open(self.filename, 'r')
-        
+
     self.walls = []
     self.doors = []
     self.icons = []
     self.wallsInt = []
     for line in floorplanFile.readlines():
-      line = line.strip()
-      values = line.split('\t')
-      if len(values) == 2:
-        self.width = float(values[0])
-        self.height = float(values[1])
-        self.maxDim = max(self.width, self.height)
-      elif len(values) == 6:
-        wall = []
-        for i in range(4):
-          wall.append(float(values[i]))
-        lineDim = calcLineDim(((wall[0], wall[1]), (wall[2], wall[3])))
-        wall[lineDim], wall[2 + lineDim] = min(wall[lineDim], wall[2 + lineDim]), max(wall[lineDim], wall[2 + lineDim])
-        wall[1 - lineDim] = wall[3 - lineDim] = (wall[1 - lineDim] + wall[3 - lineDim]) / 2
-        wall.append(int(values[4]) - 1)
-        wall.append(int(values[5]) - 1)
-        for pointIndex in range(2):
-          wall[pointIndex * 2 + 0] /= self.maxDim
-          wall[pointIndex * 2 + 1] /= self.maxDim
-        self.walls.append(wall)
+        line = line.strip()
+        values = line.split('\t')
+        if len(values) == 2:
+            self.width = float(values[0])
+            self.height = float(values[1])
+            self.maxDim = max(self.width, self.height)
+        elif len(values) == 6:
+            wall = []
+            for i in range(4):
+                wall.append(float(values[i]))
+            lineDim = calcLineDim(((wall[0], wall[1]), (wall[2], wall[3])))
+            wall[lineDim], wall[2 + lineDim] = min(wall[lineDim], wall[2 + lineDim]), max(wall[lineDim], wall[2 + lineDim])
+            wall[1 - lineDim] = wall[3 - lineDim] = (wall[1 - lineDim] + wall[3 - lineDim]) / 2
+            wall.append(int(float(values[4])) - 1)
+            wall.append(int(float(values[5])) - 1)
+            for pointIndex in range(2):
+                wall[pointIndex * 2 + 0] /= self.maxDim
+                wall[pointIndex * 2 + 1] /= self.maxDim
+            self.walls.append(wall)
 
-        wallInt = []
-        for i in range(4):
-          wallInt.append(int(values[i]))
-        wallInt[lineDim], wallInt[2 + lineDim] = min(wallInt[lineDim], wallInt[2 + lineDim]), max(wallInt[lineDim], wallInt[2 + lineDim])
-        self.wallsInt.append(wallInt)
-      elif len(values) == 7:
-        item = []
-        for i in range(4):
-          item.append(float(values[i]))
+            wallInt = []
+            for i in range(4):
+                wallInt.append(int(float(values[i])))
+            wallInt[lineDim], wallInt[2 + lineDim] = min(wallInt[lineDim], wallInt[2 + lineDim]), max(wallInt[lineDim], wallInt[2 + lineDim])
+            self.wallsInt.append(wallInt)
+        elif len(values) == 7:
+            item = []
+            for i in range(4):
+                item.append(float(values[i]))
 
-        for pointIndex in range(2):
-          item[pointIndex * 2 + 0] /= self.maxDim
-          item[pointIndex * 2 + 1] /= self.maxDim
+            for pointIndex in range(2):
+                item[pointIndex * 2 + 0] /= self.maxDim
+                item[pointIndex * 2 + 1] /= self.maxDim
 
-        if values[4] == 'door':
-          self.doors.append(item)
-        else:
-          item.append(values[4])
-          self.icons.append(item)
+            if values[4] == 'door':
+                self.doors.append(item)
+            else:
+                item.append(values[4])
+                self.icons.append(item)
     return
-  
+ 
   def generateFloor(self, data):
     floorGroup = EggGroup('floor')
     data.addChild(floorGroup)
