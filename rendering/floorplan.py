@@ -798,16 +798,6 @@ class FloorPlan():
       self.generateIcons(scene)
       return scene
 
-  def generateEggModel2(self):
-      data = EggData()
-      model = EggGroup('model')
-      data.addChild(model)
-      self.generateFloor(model)
-      self.generateWalls(model)
-      self.generateDoors(model)
-      self.generateWindows(model)
-      return data
-
   def segmentRooms(self):
       wallMask = np.ones((self.height, self.width), np.uint8) * 255
       for wall in self.wallsInt:
