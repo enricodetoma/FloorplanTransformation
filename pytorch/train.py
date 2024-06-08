@@ -24,7 +24,7 @@ from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
 
 # Import FloorPlan from floorplan.py
-# from rendering.floorplan import FloorPlan
+from rendering.floorplan import FloorPlan
 
 
 # Function to create an SVG element
@@ -69,35 +69,6 @@ def convert_to_svg(data):
 
     # Convert the ElementTree to a string
     return ET.tostring(svg, encoding='unicode')
-
-# Function to convert custom format to OBJ
-def convert_to_obj(floorplan_txt_path, obj_path):
-    with open(floorplan_txt_path, 'r') as f:
-        lines = f.readlines()
-
-    vertices = []
-    edges = []
-    
-    for line in lines[2:]:
-        parts = line.split()
-        if len(parts) == 6:  # Wall
-            x1, y1, x2, y2, _, _ = map(float, parts)
-            vertices.append((x1, y1))
-            vertices.append((x2, y2))
-            edges.append((x1, y1, x2, y2))
-        elif len(parts) == 7:  # Door or Icon
-            x1, y1, x2, y2, _, _, _ = parts
-            x1, y1, x2, y2 = map(float, [x1, y1, x2, y2])
-            vertices.append((x1, y1))
-            vertices.append((x2, y2))
-            edges.append((x1, y1, x2, y2))
-
-    with open(obj_path, 'w') as f:
-        f.write("# OBJ file\n")
-        for i, (x, y) in enumerate(vertices):
-            f.write("v {} {} 0.0\n".format(x, y))
-        for i, (x1, y1, x2, y2) in enumerate(edges):
-            f.write("l {} {}\n".format(i * 2 + 1, i * 2 + 2))
 
 def main(options):
     if not os.path.exists(options.checkpoint_dir):
@@ -234,10 +205,9 @@ def testOneEpoch(options, model, dataset, device):
                     print("Saved SVG to {}".format(svg_output_path))
 
                 # Convert floorplan.txt to floorplan.obj
-                # floorplan = FloorPlan(floorplan_txt_path)
+                floorplan = FloorPlan(floorplan_txt_path)
                 obj_path = options.test_dir + '/' + str(batchIndex) + '_floorplan.obj'
-                # floorplan.to_obj(obj_path)
-                convert_to_obj(floorplan_txt_path, obj_path)
+                floorplan.to_obj(obj_path)
                 print("Converted {} to {}".format(floorplan_txt_path, obj_path))
                 
                 continue
