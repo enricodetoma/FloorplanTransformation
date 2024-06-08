@@ -202,7 +202,7 @@ def testOneEpoch(options, model, dataset, device):
                     svg_output_path = output_prefix + 'floorplan.svg'
                     with open(svg_output_path, 'w') as f:
                         f.write(svg_data)
-                    print(f"Saved SVG to {svg_output_path}")
+                    print("Saved SVG to {}".format(svg_output_path))
 
                 # Convert floorplan.txt to floorplan.obj
                 floorplan = FloorPlan(floorplan_txt_path)
