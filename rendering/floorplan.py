@@ -785,7 +785,31 @@ class FloorPlan():
         
     return
 
-  def generateEggModel(self):
+
+  def convert_egg_to_obj(egg_file, obj_file):
+      import subprocess
+      # Path to the Blender executable
+      blender_path = '/path/to/your/blender/executable'
+      
+      # Blender script to import .egg and export .obj
+      script = f"""
+  import bpy
+  bpy.ops.wm.read_factory_settings(use_empty=True)
+  bpy.ops.import_scene.egg(filepath="{egg_file}")
+  bpy.ops.export_scene.obj(filepath="{obj_file}")
+  bpy.ops.wm.quit_blender()
+  """
+      script_file = 'convert_egg_to_obj.py'
+      with open(script_file, 'w') as file:
+          file.write(script)
+
+      try:
+          subprocess.run([blender_path, '--background', '--python', script_file], check=True)
+      except subprocess.CalledProcessError as e:
+          print(f"Error converting EGG to OBJ: {e}")
+
+
+  def generateEggModel(self, output_prefix=None):
       data = EggData()
       model = EggGroup('model')
       data.addChild(model)
@@ -793,11 +817,17 @@ class FloorPlan():
       self.generateWalls(model)
       self.generateDoors(model)
       self.generateWindows(model)
-      data.writeEgg(Filename("test/floorplan.egg"))
+      
+      egg_output_path = output_prefix + "floorplan.egg"
+      data.writeEgg(Filename(egg_output_path))
+      
+      # Convert .egg to .obj
+      convert_egg_to_obj(egg_output_path, output_prefix + "floorplan.obj")
+      
       scene = NodePath(loadEggData(data))
       self.generateIcons(scene)
       return scene
-
+  
   def segmentRooms(self):
       wallMask = np.ones((self.height, self.width), np.uint8) * 255
       for wall in self.wallsInt:
