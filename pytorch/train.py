@@ -1,10 +1,11 @@
 import sys
 import os
 
-# Add the root directory of the project to the Python path
+# Add the project root directory and 'pytorch' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.dirname(current_path)
 sys.path.append(root_path)
+sys.path.append(current_path)
 
 from models.model import Model
 
