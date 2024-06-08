@@ -1,9 +1,13 @@
 import sys
 import os
 
-# Add the current script path to the Python path
+# Add the parent directory of the current script path to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_path)
+models_path = os.path.join(current_path, 'models')
+sys.path.append(models_path)
+
+from model import Model
+
 
 import torch
 from torch.utils.data import DataLoader
@@ -15,7 +19,7 @@ import cv2
 from utils import *
 from options import parse_args
 
-from models.model import Model
+# from models.model import Model
 
 from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
