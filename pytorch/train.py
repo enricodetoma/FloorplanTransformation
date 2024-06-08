@@ -19,8 +19,6 @@ import cv2
 from utils import *
 from options import parse_args
 
-# from models.model import Model
-
 from datasets.floorplan_dataset import FloorplanDataset
 from IP import reconstructFloorplan
 
@@ -39,23 +37,25 @@ def main(options):
     dataloader = DataLoader(dataset, batch_size=options.batchSize, shuffle=True, num_workers=16)
 
     model = Model(options)
-    model.cuda()
+
+    # Check if CUDA is available and use it; otherwise, use CPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
     model.train()
 
     if options.restore == 1:
         print('restore')
-        model.load_state_dict(torch.load(options.checkpoint_dir + '/checkpoint.pth'))
+        model.load_state_dict(torch.load(options.checkpoint_dir + '/checkpoint.pth', map_location=device))
         pass
-
-    
     if options.task == 'test':
         dataset_test = FloorplanDataset(options, split='test', random=False)
-        testOneEpoch(options, model, dataset_test)
+        testOneEpoch(options, model, dataset_test, device)
         exit(1)
-    
+
     optimizer = torch.optim.Adam(model.parameters(), lr = options.LR)
     if options.restore == 1 and os.path.exists(options.checkpoint_dir + '/optim.pth'):
-        optimizer.load_state_dict(torch.load(options.checkpoint_dir + '/optim.pth'))
+        optimizer.load_state_dict(torch.load(options.checkpoint_dir + '/optim.pth', map_location=device))
         pass
 
     for epoch in range(options.numEpochs):
@@ -63,8 +63,8 @@ def main(options):
         data_iterator = tqdm(dataloader, total=len(dataset) // options.batchSize + 1)
         for sampleIndex, sample in enumerate(data_iterator):
             optimizer.zero_grad()
-            
-            images, corner_gt, icon_gt, room_gt = sample[0].cuda(), sample[1].cuda(), sample[2].cuda(), sample[3].cuda()
+
+            images, corner_gt, icon_gt, room_gt = sample[0].to(device), sample[1].to(device), sample[2].to(device), sample[3].to(device)
 
             corner_pred, icon_pred, room_pred = model(images)
             #print([(v.shape, v.min(), v.max()) for v in [corner_pred, icon_pred, room_pred, corner_gt, icon_gt, room_gt]])
@@ -73,7 +73,7 @@ def main(options):
             #exit(1)
             corner_loss = torch.nn.functional.binary_cross_entropy(corner_pred, corner_gt)
             icon_loss = torch.nn.functional.cross_entropy(icon_pred.view(-1, NUM_ICONS + 2), icon_gt.view(-1))
-            room_loss = torch.nn.functional.cross_entropy(room_pred.view(-1, NUM_ROOMS + 2), room_gt.view(-1))            
+            room_loss = torch.nn.functional.cross_entropy(room_pred.view(-1, NUM_ROOMS + 2), room_gt.view(-1))
             losses = [corner_loss, icon_loss, room_loss]
             loss = sum(losses)
 
@@ -103,21 +103,21 @@ def main(options):
         continue
     return
 
-def testOneEpoch(options, model, dataset):
+def testOneEpoch(options, model, dataset, device):
     model.eval()
-    
+
     dataloader = DataLoader(dataset, batch_size=options.batchSize, shuffle=False, num_workers=1)
-    
-    epoch_losses = []    
+
+    epoch_losses = []
     data_iterator = tqdm(dataloader, total=len(dataset) // options.batchSize + 1)
     for sampleIndex, sample in enumerate(data_iterator):
 
-        images, corner_gt, icon_gt, room_gt = sample[0].cuda(), sample[1].cuda(), sample[2].cuda(), sample[3].cuda()
-        
+        images, corner_gt, icon_gt, room_gt = sample[0].to(device), sample[1].to(device), sample[2].to(device), sample[3].to(device)
+
         corner_pred, icon_pred, room_pred = model(images)
         corner_loss = torch.nn.functional.binary_cross_entropy(corner_pred, corner_gt)
         icon_loss = torch.nn.functional.cross_entropy(icon_pred.view(-1, NUM_ICONS + 2), icon_gt.view(-1))
-        room_loss = torch.nn.functional.cross_entropy(room_pred.view(-1, NUM_ROOMS + 2), room_gt.view(-1))            
+        room_loss = torch.nn.functional.cross_entropy(room_pred.view(-1, NUM_ROOMS + 2), room_gt.view(-1))
         losses = [corner_loss, icon_loss, room_loss]
         
         loss = sum(losses)
@@ -131,11 +131,11 @@ def testOneEpoch(options, model, dataset):
         data_iterator.set_description(status)
 
         if sampleIndex % 500 == 0:
-            visualizeBatch(options, images.detach().cpu().numpy(), [('gt', {'corner': corner_gt.detach().cpu().numpy(), 'icon': icon_gt.detach().cpu().numpy(), 'room': room_gt.detach().cpu().numpy()}), ('pred', {'corner': corner_pred.max(-1)[1].detach().cpu().numpy(), 'icon': icon_pred.max(-1)[1].detach().cpu().numpy(), 'room': room_pred.max(-1)[1].detach().cpu().numpy()})])            
+            visualizeBatch(options, images.detach().cpu().numpy(), [('gt', {'corner': corner_gt.detach().cpu().numpy(), 'icon': icon_gt.detach().cpu().numpy(), 'room': room_gt.detach().cpu().numpy()}), ('pred', {'corner': corner_pred.max(-1)[1].detach().cpu().numpy(), 'icon': icon_pred.max(-1)[1].detach().cpu().numpy(), 'room': room_pred.max(-1)[1].detach().cpu().numpy()})])
             for batchIndex in range(len(images)):
                 corner_heatmaps = corner_pred[batchIndex].detach().cpu().numpy()
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
-                room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()                
+                room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()   
                 reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=options.test_dir + '/' + str(batchIndex) + '_', densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 continue
             if options.visualizeMode == 'debug':
@@ -165,7 +165,7 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
 
 if __name__ == '__main__':
     args = parse_args()
-    
+
     args.keyname = 'floorplan'
     #args.keyname += '_' + args.dataset
 
