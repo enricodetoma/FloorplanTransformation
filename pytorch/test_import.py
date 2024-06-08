@@ -9,5 +9,5 @@ try:
     from models.model import Model
     print("Import successful")
 except ImportError as e:
-    print(f"Import failed: {e}")
+    print("Import failed: {}".format(e))
     print("Current PYTHONPATH:", sys.path)
