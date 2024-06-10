@@ -1,5 +1,7 @@
 import sys
 import os
+import random
+import string
 import xml.etree.ElementTree as ET  # For SVG conversion
 
 # Add the project root directory and 'pytorch' directory to the Python path
@@ -167,6 +169,11 @@ def main(options):
         continue
     return
 
+
+def generate_random_string(length=6):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in length)
+
 def testOneEpoch(options, model, dataset, device):
     model.eval()
 
@@ -174,7 +181,7 @@ def testOneEpoch(options, model, dataset, device):
 
     epoch_losses = []
     data_iterator = tqdm(dataloader, total=len(dataset) // options.batchSize + 1)
-    for sampleIndex, sample in enumerate(data_iterator):
+    for sampleIndex, (sample, image_names) in enumerate(data_iterator):
 
         images, corner_gt, icon_gt, room_gt = sample[0].to(device), sample[1].to(device), sample[2].to(device), sample[3].to(device)
 
@@ -202,8 +209,16 @@ def testOneEpoch(options, model, dataset, device):
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 print("Reconstructing floorplan for batch {}, image {}".format(sampleIndex, batchIndex))
-                output_prefix = options.test_dir + '/' + str(batchIndex) + '_'
-                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
+
+                image_name = os.path.splitext(os.path.basename(image_names[batchIndex]))[0]  # Extract the base name of the image
+                random_string = generate_random_string()
+                # output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}_{batchIndex}")
+                output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}")
+                os.makedirs(output_folder, exist_ok=True)
+                debug_prefix = os.path.join(output_prefix, 'debug')
+                output_prefix = os.path.join(output_folder, '')
+
+                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix=debug_prefix, heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 
                 # Convert floorplan to SVG
                 floorplan_txt_path = output_prefix + 'floorplan.txt'
