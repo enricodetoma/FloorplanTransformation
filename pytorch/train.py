@@ -218,7 +218,7 @@ def testOneEpoch(options, model, dataset, device):
 
                 # Generate the 3D model
                 floorplan = FloorPlan(floorplan_txt_path)
-                scene = floorplan.generateEggModel(output_prefix=output_prefix)
+                # scene = floorplan.generateEggModel(output_prefix=output_prefix)
                 # obj_output_path = output_prefix + 'floorplan.bam'
                 # scene.writeBamFile(obj_output_path)
                 # print(f"Saved BAM file to {obj_output_path}")
