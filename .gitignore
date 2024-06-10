@@ -1,5 +1,6 @@
+data
+checkpoint/
 pytorch/p3env/
 pytorch/test/
 pytorch/data/
 pytorch/checkpoint/
-checkpoint/
