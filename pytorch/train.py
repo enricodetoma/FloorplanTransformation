@@ -208,7 +208,7 @@ def testOneEpoch(options, model, dataset, device):
                 corner_heatmaps = corner_pred[batchIndex].detach().cpu().numpy()
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
-                print("Reconstructing floorplan for batch {}, image {}".format(sampleIndex, batchIndex))
+                print("== Reconstructing floorplan for batch {}, image {} ==".format(sampleIndex, batchIndex))
 
                 image_name = os.path.splitext(os.path.basename(image_names[batchIndex]))[0]  # Extract the base name of the image
                 random_string = generate_random_string()
