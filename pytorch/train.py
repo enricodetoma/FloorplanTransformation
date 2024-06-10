@@ -1,7 +1,6 @@
 import sys
 import os
 import xml.etree.ElementTree as ET  # For SVG conversion
-import argparse
 
 # Add the project root directory and 'pytorch' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -255,30 +254,21 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
     return
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Floorplan Training')
-    parser.add_argument('--task', type=str, required=True, help='Task to perform')
-    parser.add_argument('--keyname', type=str, default=None, help='Keyname for the task')
-    parser.add_argument('--suffix', type=str, default='', help='Suffix for the keyname')
-    # Add other arguments as needed
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
     args = parse_args()
 
-    # args.keyname = 'floorplan'
+    args.keyname = 'floorplan'
     #args.keyname += '_' + args.dataset
-
-    if args.keyname is None:
-        args.keyname = 'floorplan'
-
-    if args.suffix != '':
-        args.keyname += '_' + args.suffix
-        pass
+    
+    # update with random suffix only if it is not provided through the command line.
+    if args.suffix == '':
+        import string
+        import random
+        suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
+        args.keyname += '_' + suffix
     args.checkpoint_dir = '../checkpoint/' + args.keyname
     args.test_dir = 'test/' + args.keyname
 
-    print('keyname=%s task=%s started' % (args.keyname, args.task))
+    print('keyname=%s task=%s started'%(args.keyname, args.task))
 
     main(args)
