@@ -125,7 +125,7 @@ def main(options):
     for epoch in range(options.numEpochs):
         epoch_losses = []
         data_iterator = tqdm(dataloader, total=len(dataset) // options.batchSize + 1)
-        for sampleIndex, (sample, image_names) in enumerate(data_iterator):
+        for sampleIndex, sample in enumerate(data_iterator):
             optimizer.zero_grad()
 
             images, corner_gt, icon_gt, room_gt = sample[0].to(device), sample[1].to(device), sample[2].to(device), sample[3].to(device)
@@ -174,7 +174,7 @@ def testOneEpoch(options, model, dataset, device):
 
     epoch_losses = []
     data_iterator = tqdm(dataloader, total=len(dataset) // options.batchSize + 1)
-    for sampleIndex, (sample, image_names) in enumerate(data_iterator):
+    for sampleIndex, sample in enumerate(data_iterator):
 
         images, corner_gt, icon_gt, room_gt = sample[0].to(device), sample[1].to(device), sample[2].to(device), sample[3].to(device)
 
