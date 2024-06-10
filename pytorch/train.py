@@ -212,6 +212,7 @@ def testOneEpoch(options, model, dataset, device):
 
                 image_name = os.path.splitext(os.path.basename(image_names[batchIndex]))[0]  # Extract the base name of the image
                 random_string = generate_random_string()
+                print("image filename {}, suffix {}".format(image_name, random_string))
                 # output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}_{batchIndex}")
                 output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}")
                 os.makedirs(output_folder, exist_ok=True)
