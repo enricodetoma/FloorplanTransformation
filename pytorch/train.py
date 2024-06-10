@@ -203,31 +203,34 @@ def testOneEpoch(options, model, dataset, device):
 
         if sampleIndex % 500 == 0:
             print("Saving batch {} to {}".format(sampleIndex, options.test_dir))
-            visualizeBatch(options, images.detach().cpu().numpy(), [('gt', {'corner': corner_gt.detach().cpu().numpy(), 'icon': icon_gt.detach().cpu().numpy(), 'room': room_gt.detach().cpu().numpy()}), ('pred', {'corner': corner_pred.max(-1)[1].detach().cpu().numpy(), 'icon': icon_pred.max(-1)[1].detach().cpu().numpy(), 'room': room_pred.max(-1)[1].detach().cpu().numpy()})])
+            
+            # Generate the random string once and create the output folder
             for batchIndex in range(len(images)):
+                image_name = os.path.splitext(os.path.basename(image_names[batchIndex]))[0]  # Extract the base name of the image
+                random_string = generate_random_string()
+                output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}_{batchIndex}")
+                os.makedirs(output_folder, exist_ok=True)
+                output_prefix = os.path.join(output_folder, '')
+                debug_prefix = os.path.join(output_prefix, 'debug')
+                os.makedirs(debug_prefix, exist_ok=True)
+
+                # Visualize the batch with the correct folder
+                visualizeBatch(options, images.detach().cpu().numpy(), [('gt', {'corner': corner_gt.detach().cpu().numpy(), 'icon': icon_gt.detach().cpu().numpy(), 'room': room_gt.detach().cpu().numpy()}), ('pred', {'corner': corner_pred.max(-1)[1].detach().cpu().numpy(), 'icon': icon_pred.max(-1)[1].detach().cpu().numpy(), 'room': room_pred.max(-1)[1].detach().cpu().numpy()})], image_names, output_folder, batchIndex)
+
                 corner_heatmaps = corner_pred[batchIndex].detach().cpu().numpy()
                 icon_heatmaps = torch.nn.functional.softmax(icon_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 print("== Reconstructing floorplan for batch {}, image {} ==".format(sampleIndex, batchIndex))
 
-                image_name = os.path.splitext(os.path.basename(image_names[batchIndex]))[0]  # Extract the base name of the image
-                random_string = generate_random_string()
-                print("image filename {}, suffix {}".format(image_name, random_string))
-                # output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}_{batchIndex}")
-                output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}")
-                os.makedirs(output_folder, exist_ok=True)
-                output_prefix = os.path.join(output_folder, '')
-                debug_prefix = os.path.join(output_prefix, 'debug')
-
                 reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix=debug_prefix, heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 
                 # Convert floorplan to SVG
-                floorplan_txt_path = output_prefix + 'floorplan.txt'
+                floorplan_txt_path = os.path.join(output_prefix, 'floorplan.txt')
                 if os.path.exists(floorplan_txt_path):
                     with open(floorplan_txt_path, 'r') as f:
                         floorplan_data = f.read()
                     svg_data = convert_to_svg(floorplan_data)
-                    svg_output_path = output_prefix + 'floorplan.svg'
+                    svg_output_path = os.path.join(output_prefix, 'floorplan.svg')
                     with open(svg_output_path, 'w') as f:
                         f.write(svg_data)
                     print(f"Saved SVG to {svg_output_path}")
@@ -235,7 +238,7 @@ def testOneEpoch(options, model, dataset, device):
                 # Generate the 3D model
                 floorplan = FloorPlan(floorplan_txt_path)
                 scene = floorplan.generateEggModel(output_prefix=output_prefix)
-                # obj_output_path = output_prefix + 'floorplan.bam'
+                # obj_output_path = os.path.join(output_prefix, 'floorplan.bam')
                 # scene.writeBamFile(obj_output_path)
                 # print(f"Saved BAM file to {obj_output_path}")
 
@@ -250,24 +253,25 @@ def testOneEpoch(options, model, dataset, device):
     model.train()
     return
 
-def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
+def visualizeBatch(options, images, dicts, image_names, output_folder, indexOffset=0, prefix=''):
     #cornerColorMap = {'gt': np.array([255, 0, 0]), 'pred': np.array([0, 0, 255]), 'inp': np.array([0, 255, 0])}
     #pointColorMap = ColorPalette(20).getColorMap()
     images = ((images.transpose((0, 2, 3, 1)) + 0.5) * 255).astype(np.uint8)
     for batchIndex in range(len(images)):
         image = images[batchIndex].copy()
-        filename = options.test_dir + '/' + str(indexOffset + batchIndex) + '_image.png'
+        filename = os.path.join(output_folder, f'image_{indexOffset + batchIndex}.png')
         print("Saving image to {}".format(filename))
         cv2.imwrite(filename, image)
         for name, result_dict in dicts:
             for info in ['corner', 'icon', 'room']:
-                result_filename = filename.replace('image', '{}_{}'.format(info, name))
+                result_filename = os.path.join(output_folder, f"{info}_{name}.png")
                 print("Saving {} image for {} to {}".format(info, name, result_filename))
                 cv2.imwrite(result_filename, drawSegmentationImage(result_dict[info][batchIndex], blackIndex=0, blackThreshold=0.5))
                 continue
             continue
         continue
     return
+
 
 if __name__ == '__main__':
     args = parse_args()
