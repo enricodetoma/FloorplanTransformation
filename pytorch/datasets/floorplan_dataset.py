@@ -267,7 +267,8 @@ class FloorplanDataset(Dataset):
             print(index, self.imagePaths[index][1])
             pass
         
-        image = cv2.imread(self.dataFolder + self.imagePaths[index][0])
+        input_image_name = self.imagePaths[index][0]  # Extract the image name
+        image = cv2.imread(self.dataFolder + input_image_name)
         image_ori = image
         image_width, image_height = image.shape[1], image.shape[0]
 
@@ -451,4 +452,4 @@ class FloorplanDataset(Dataset):
         cornerSegmentation = cv2.dilate(cornerSegmentation, kernel, iterations=5)
 
         sample = [image, cornerSegmentation.astype(np.float32), iconSegmentation.astype(np.int64), roomSegmentation.astype(np.int64)]
-        return sample
+        return sample, input_image_name
