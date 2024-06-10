@@ -256,23 +256,14 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
 
 if __name__ == '__main__':
     args = parse_args()
-
-    # args.keyname = 'floorplan'
+    args.keyname = 'floorplan'
     #args.keyname += '_' + args.dataset
 
-    # Ensure the keyname attribute exists and generate a random suffix if needed
-    import string
-    import random
-    suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
-    if not hasattr(args, 'keyname') or not args.keyname:
-        args.keyname = 'floorplan'
-
     if args.suffix != '':
-        args.keyname += '_' + suffix
-
-    args.checkpoint_dir = '../../checkpoint/' + args.keyname
+        args.keyname += '_' + args.suffix
+        pass
+    
+    args.checkpoint_dir = '../checkpoint/' + args.keyname
     args.test_dir = 'test/' + args.keyname
-
     print('keyname=%s task=%s started'%(args.keyname, args.task))
-
     main(args)
