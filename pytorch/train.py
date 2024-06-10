@@ -1,6 +1,7 @@
 import sys
 import os
 import xml.etree.ElementTree as ET  # For SVG conversion
+import argparse
 
 # Add the project root directory and 'pytorch' directory to the Python path
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -203,7 +204,7 @@ def testOneEpoch(options, model, dataset, device):
                 room_heatmaps = torch.nn.functional.softmax(room_pred[batchIndex], dim=-1).detach().cpu().numpy()
                 print("Reconstructing floorplan for batch {}, image {}".format(sampleIndex, batchIndex))
                 output_prefix = options.test_dir + '/' + str(batchIndex) + '_'
-                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix=f'test/{output_prefix}', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
+                reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix='test', heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 
                 # Convert floorplan to SVG
                 floorplan_txt_path = output_prefix + 'floorplan.txt'
@@ -254,19 +255,30 @@ def visualizeBatch(options, images, dicts, indexOffset=0, prefix=''):
     return
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Floorplan Training')
+    parser.add_argument('--task', type=str, required=True, help='Task to perform')
+    parser.add_argument('--keyname', type=str, default=None, help='Keyname for the task')
+    parser.add_argument('--suffix', type=str, default='', help='Suffix for the keyname')
+    # Add other arguments as needed
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
     args = parse_args()
 
-    args.keyname = 'floorplan'
+    # args.keyname = 'floorplan'
     #args.keyname += '_' + args.dataset
 
+    if args.keyname is None:
+        args.keyname = 'floorplan'
+
     if args.suffix != '':
-        args.keyname += '_' + suffix
+        args.keyname += '_' + args.suffix
         pass
-    
     args.checkpoint_dir = '../checkpoint/' + args.keyname
     args.test_dir = 'test/' + args.keyname
 
-    print('keyname=%s task=%s started'%(args.keyname, args.task))
+    print('keyname=%s task=%s started' % (args.keyname, args.task))
 
     main(args)
