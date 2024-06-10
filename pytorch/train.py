@@ -216,8 +216,8 @@ def testOneEpoch(options, model, dataset, device):
                 # output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}_{batchIndex}")
                 output_folder = os.path.join(options.test_dir, f"{image_name}_{random_string}")
                 os.makedirs(output_folder, exist_ok=True)
-                debug_prefix = os.path.join(output_prefix, 'debug')
                 output_prefix = os.path.join(output_folder, '')
+                debug_prefix = os.path.join(output_prefix, 'debug')
 
                 reconstructFloorplan(corner_heatmaps[:, :, :NUM_WALL_CORNERS], corner_heatmaps[:, :, NUM_WALL_CORNERS:NUM_WALL_CORNERS + 4], corner_heatmaps[:, :, -4:], icon_heatmaps, room_heatmaps, output_prefix=output_prefix, densityImage=None, gt_dict=None, gt=False, gap=-1, distanceThreshold=-1, lengthThreshold=-1, debug_prefix=debug_prefix, heatmapValueThresholdWall=None, heatmapValueThresholdDoor=None, heatmapValueThresholdIcon=None, enableAugmentation=True)
                 
