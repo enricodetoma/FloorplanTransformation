@@ -261,13 +261,15 @@ if __name__ == '__main__':
     #args.keyname += '_' + args.dataset
 
     # Ensure the keyname attribute exists and generate a random suffix if needed
+    import string
+    import random
+    suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
     if not hasattr(args, 'keyname') or not args.keyname:
-        import string
-        import random
-        suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
-        args.keyname = 'floorplan_' + suffix
+        args.keyname = 'floorplan'
 
     if args.suffix != '':
+        args.keyname += '_' + args.suffix
+    else:
         args.keyname += '_' + suffix
 
     args.checkpoint_dir = '../checkpoint/' + args.keyname
