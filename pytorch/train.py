@@ -259,13 +259,17 @@ if __name__ == '__main__':
 
     # args.keyname = 'floorplan'
     #args.keyname += '_' + args.dataset
-    
-    # update with random suffix only if it is not provided through the command line.
-    if args.suffix == '':
+
+    # Ensure the keyname attribute exists and generate a random suffix if needed
+    if not hasattr(args, 'keyname') or not args.keyname:
         import string
         import random
         suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
+        args.keyname = 'floorplan_' + suffix
+
+    if args.suffix != '':
         args.keyname += '_' + suffix
+
     args.checkpoint_dir = '../checkpoint/' + args.keyname
     args.test_dir = 'test/' + args.keyname
 
