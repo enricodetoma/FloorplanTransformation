@@ -1,21 +1,4 @@
 #!/usr/bin/python
-"""
-    This Version: $Id: obj2egg.py,v 1.7 2008/05/26 17:42:53 andyp Exp $
-    Info: info >at< pfastergames.com
-
-    Extended from: http://panda3d.org/phpbb2/viewtopic.php?t=3378
-    .___..__ .___.___.___.__..__ .  .
-      |  [__)[__ [__ [__ |  |[__)|\/|
-      |  |  \[___[___|   |__||  \|  |
-    obj2egg.py [n##][b][t][s] filename1.obj ...
-        -n regenerate normals with # degree smoothing
-            example -n30  (normals at less 30 degrees will be smoothed)
-        -b make binormals
-        -t make tangents
-        -s show in pview
-
-    licensed under WTFPL (http://sam.zoy.org/wtfpl/)
-"""
 
 from panda3d.egg import *
 from panda3d.core import *

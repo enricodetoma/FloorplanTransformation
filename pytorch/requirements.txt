@@ -6,3 +6,5 @@ scipy
 torch
 torchvision
 tqdm
+gurobipy
+panda3d
