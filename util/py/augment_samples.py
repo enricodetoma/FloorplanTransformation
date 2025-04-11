@@ -68,7 +68,7 @@ Output:
 
 landmarks = json.load(open(os.path.join(os.getcwd(), "landmarks.json"), "r"))
 dest_dir = sys.argv[1]
-os.system("mkdir -p " + dest_dir)
+os.makedirs(dest_dir, exist_ok=True)
 
 angles = np.linspace(-max_theta, max_theta, 20)
 scales = np.linspace(1 - max_scale_delta, 1 + max_scale_delta, 20)

@@ -31,8 +31,12 @@ def calcLineDim(line, lineWidth=-1):
 def convert_egg_to_obj(egg_file, obj_file):
     import subprocess
     # Path to the Blender executable
-    blender_path = '/usr/local/bin/blender'
-    
+    import platform
+    if platform.system() == 'Windows':
+        blender_path = r'C:/Program Files/Blender Foundation/Blender 4.4/blender.exe'
+    else:
+        blender_path = '/usr/local/bin/blender'
+
     # Blender script to import .egg and export .obj
     script = f"""
 import bpy
@@ -108,10 +112,10 @@ class FloorPlan():
       self.windowMat.put('map_Kd', 'data/window.jpg')
 
       self.iconNodes = {}
-      self.iconNodes['cooking_counter'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/cooking_counter.egg')
-      self.iconNodes['bathtub'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/bathtub.egg')
-      self.iconNodes['toilet'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/toilet.egg')
-      self.iconNodes['washing_basin'] = base.loader.loadModel('/home/apps/forkedFloorplanTransformation/rendering/data/washing_basin.egg')
+      self.iconNodes['cooking_counter'] = base.loader.loadModel('../rendering/data/cooking_counter.egg')
+      self.iconNodes['bathtub'] = base.loader.loadModel('../rendering/data/bathtub.egg')
+      self.iconNodes['toilet'] = base.loader.loadModel('../rendering/data/toilet.egg')
+      self.iconNodes['washing_basin'] = base.loader.loadModel('../rendering/data/washing_basin.egg')
       
       self.read()  # Initialize walls, doors, icons, etc.
 

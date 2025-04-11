@@ -85,10 +85,10 @@ def convert_to_svg(data):
 
 def main(options):
     if not os.path.exists(options.checkpoint_dir):
-        os.system("mkdir -p %s"%options.checkpoint_dir)
+        os.makedirs(options.checkpoint_dir, exist_ok=True)
         pass
     if not os.path.exists(options.test_dir):
-        os.system("mkdir -p %s"%options.test_dir)
+        os.makedirs(options.test_dir, exist_ok=True)
         pass
 
     print("Checkpoint directory: {}".format(options.checkpoint_dir))
